@@ -1,0 +1,103 @@
+name: 'GRESB Test'
+description: 'Run GRESB integration tests'
+inputs:
+  gresb-test-version:
+    description: 'The version of gresb-test to use.'
+    required: true
+  cmd-args:
+    description: 'The arguments passed to gresb-test.'
+    required: true
+    default: '-V'
+  installation-github-pat:
+    description: 'The GitHub token used for downloading the installation script.'
+    required: true
+  installation-aws-access-key-id:
+    description: 'The AWS access key id used to install gresb-test. Needs access to the gresb-application-versions S3 bucket.'
+    required: true
+  installation-aws-secret-access-key:
+    description: 'The AWS secret access key used to install gresb-test. Needs access to the gresb-application-versions S3 bucket.'
+    required: true
+  test-aws-access-key-id:
+    description: 'The AWS access key id used to run tests that require interaction with AWS APIs.'
+    required: false
+  test-aws-secret-access-key:
+    description: 'The AWS secret access key used to run tests that require interaction with AWS APIs.'
+    required: false
+  test-mailtrap-token:
+    description: 'The Mailtrap token used to run tests that require interaction with Mailtrap APIs.'
+    required: false
+  test-slack-token:
+    description: 'The Slack token used to run tests that require interaction with Slack APIs.'
+    required: false
+  test-gresb-portal-user-password:
+    description: 'The password for the default test user in the portal.'
+    required: false
+outputs:
+  log:
+    description: 'The test log.'
+    value: ${{ steps.run-tests.outputs.log }}
+runs:
+  using: "composite"
+  steps:
+    - name: Install Java for gresb-test
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+        java-package: jre
+    - name: Install system packages
+      uses: awalsh128/cache-apt-pkgs-action@v1.1.2
+      with:
+        packages: colorized-logs
+        version: 1.0
+    - name: Cache gresb-test
+      uses: actions/cache@v3
+      with:
+        path: |
+          /usr/local/GRESB/gresb-test
+          /usr/local/bin/gresb-test
+        key: ${{ runner.os }}-gresb-test-${{ inputs.gresb-test-version }}
+        restore-keys: ${{ runner.os }}-gresb-test
+    - name: Install gresb-test
+      shell: bash
+      run: |
+        if ! (which gresb-test) || ! (gresb-test -V | grep "${gresb_test_version}"); then
+          echo "DEBUG :: which gresb-test = $( which gresb-test )"
+          echo "DEBUG :: gresb-test -V    = $( gresb-test -V )"
+
+          install_script=/tmp/install.sh
+          curl -H "Authorization: token ${pat}" -o "${install_script}" "https://raw.githubusercontent.com/GRESB/test-automation/${gresb_test_version}/test-runner/install.sh"
+          chmod +x "${install_script}"
+          echo "==> Installing gresb-test ${gresb_test_version}"
+          "${install_script}" "${gresb_test_version}"
+          rm -f "${install_script}"
+        else
+          echo "==> gresb-test ${gresb_test_version} already installed"
+        fi
+      env:
+        gresb_test_version: ${{ inputs.gresb-test-version }}
+        pat: ${{ inputs.installation-github-pat }}
+        AWS_DEFAULT_REGION: eu-central-1
+        AWS_ACCESS_KEY_ID: ${{ inputs.installation-aws-access-key-id }}
+        AWS_SECRET_ACCESS_KEY: ${{ inputs.installation-aws-secret-access-key }}
+    - name: Run integration tests
+      id: run-tests
+      shell: bash
+      run: |
+        cmd="gresb-test ${cmd_args}"
+        echo "DEBUG :: executing = ${cmd}"
+        output_file=".output.txt"
+        ${cmd} 2>&1 | ansi2txt | tee "${output_file}"
+        result=$?
+        echo "log<<END_OF_VALUE" >> "${GITHUB_OUTPUT}"
+        cat "${output_file}" >> "${GITHUB_OUTPUT}"
+        echo "END_OF_VALUE" >> "${GITHUB_OUTPUT}"
+        exit "${result}"
+      env:
+        cmd_args: ${{ inputs.cmd-args }}
+        AWS_ACCESS_KEY_ID: ${{ inputs.test-aws-access-key-id }}
+        AWS_SECRET_ACCESS_KEY: ${{ inputs.test-aws-secret-access-key }}
+        MAILTRAP_TOKEN: ${{ inputs.test-mailtrap-token }}
+        SLACK_TOKEN: ${{ inputs.test-slack-token }}
+        GRESB_RUN_HEADLESS: "true"
+        GRESB_PORTAL_PASSWORD: ${{ inputs.test-gresb-portal-user-password }}

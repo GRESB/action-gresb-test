@@ -32,6 +32,12 @@ inputs:
   test-gresb-portal-user-password:
     description: 'The password for the default test user in the portal.'
     required: false
+  cluster-api-key:
+    description: 'The Kafka cluster api key'
+    required: false
+  cluster-api-secret:
+    description: 'The Kafka cluster api secret'
+    required: false
 outputs:
   log:
     description: 'The test log.'
@@ -101,3 +107,5 @@ runs:
         SLACK_TOKEN: ${{ inputs.test-slack-token }}
         GRESB_RUN_HEADLESS: "true"
         GRESB_PORTAL_PASSWORD: ${{ inputs.test-gresb-portal-user-password }}
+        CLUSTER_API_KEY: ${{ inputs.cluster-api-key }}
+        CLUSTER_API_SECRET: ${{ inputs.cluster-api-secret }}

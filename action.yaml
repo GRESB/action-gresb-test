@@ -93,12 +93,16 @@ runs:
         cmd="gresb-test ${cmd_args}"
         echo "DEBUG :: executing = ${cmd}"
         output_file=".output.txt"
+        set +e
         ${cmd} 2>&1 | ansi2txt | tee "${output_file}"
-        result=$?
-        echo "log<<END_OF_VALUE" >> "${GITHUB_OUTPUT}"
-        cat "${output_file}" >> "${GITHUB_OUTPUT}"
-        echo "END_OF_VALUE" >> "${GITHUB_OUTPUT}"
-        exit "${result}"
+        status=$?
+        {
+          echo "status=${status}"
+          END_OF_VALUE=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "log<<${END_OF_VALUE}";
+          cat "${output_file}";
+          echo "${END_OF_VALUE}"
+        } >> "${GITHUB_OUTPUT}"
       env:
         cmd_args: ${{ inputs.cmd-args }}
         AWS_ACCESS_KEY_ID: ${{ inputs.test-aws-access-key-id }}
@@ -109,3 +113,9 @@ runs:
         GRESB_PORTAL_PASSWORD: ${{ inputs.test-gresb-portal-user-password }}
         CLUSTER_API_KEY: ${{ inputs.cluster-api-key }}
         CLUSTER_API_SECRET: ${{ inputs.cluster-api-secret }}
+    - name: Set status
+      shell: bash
+      if: always()
+      env:
+        status: ${{ steps.run-tests.outputs.status }}
+      run: exit ${status}

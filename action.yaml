@@ -33,19 +33,19 @@ inputs:
     description: 'The password for the default test user in the portal.'
     required: false
   test-cluster-api-key:
-    description: 'The Kafka cluster api key'
+    description: 'The Kafka cluster api key.'
     required: false
   test-cluster-api-secret:
-    description: 'The Kafka cluster api secret'
+    description: 'The Kafka cluster api secret.'
     required: false
   test-datadog-api-key:
-    description: 'The Datadog API key'
+    description: 'The Datadog API key.'
     required: false
   test-datadog-app-key:
-    description: 'The Datadog APP key'
+    description: 'The Datadog APP key.'
     required: false
   test-datadog-site:
-    description: 'The Datadog site'
+    description: 'The Datadog site.'
     required: false
     default: 'datadoghq.eu'
 outputs:

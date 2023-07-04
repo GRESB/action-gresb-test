@@ -19,20 +19,23 @@ To do that pull the action from a branch.
 
 ## Inputs
 
-| Input                              | Description                                                                                                     | Required | Default |
-|------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------|---------|
-| gresb-test-version                 | The version of gresb-test to use.                                                                               | true     |         |
-| cmd-args                           | The arguments passed to gresb-test.                                                                             | true     | '-V'    |
-| installation-github-pat            | The GitHub token used for downloading the installation script.                                                  | true     |         |
-| installation-aws-access-key-id     | The AWS access key id used to install gresb-test. Needs access to the gresb-application-versions S3 bucket.     | true     |         |
-| installation-aws-secret-access-key | The AWS secret access key used to install gresb-test. Needs access to the gresb-application-versions S3 bucket. | true     |         |
-| test-aws-access-key-id             | The AWS access key id used to run tests that require interaction with AWS APIs.                                 | false    |         |
-| test-aws-secret-access-key         | The AWS secret access key used to run tests that require interaction with AWS APIs.                             | false    |         |
-| test-mailtrap-token                | The Mailtrap token used to run tests that require interaction with Mailtrap APIs.                               | false    |         |
-| test-slack-token                   | The Slack token used to run tests that require interaction with Slack APIs.                                     | false    |         |
-| test-gresb-portal-user-password    | The password for the default test user in the portal.                                                           | false    |         |
-| cluster-api-key                    | The Kafka cluster api key                                                                                       | false    |         |
-| cluster-api-secret                 | The Kafka cluster api secret                                                                                    | false    |         | 
+| Input                              | Description                                                                                                     | Required | Default      |
+|------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------|--------------|
+| gresb-test-version                 | The version of gresb-test to use.                                                                               | true     |              |
+| cmd-args                           | The arguments passed to gresb-test.                                                                             | true     | '-V'         |
+| installation-github-pat            | The GitHub token used for downloading the installation script.                                                  | true     |              |
+| installation-aws-access-key-id     | The AWS access key id used to install gresb-test. Needs access to the gresb-application-versions S3 bucket.     | true     |              |
+| installation-aws-secret-access-key | The AWS secret access key used to install gresb-test. Needs access to the gresb-application-versions S3 bucket. | true     |              |
+| test-aws-access-key-id             | The AWS access key id used to run tests that require interaction with AWS APIs.                                 | false    |              |
+| test-aws-secret-access-key         | The AWS secret access key used to run tests that require interaction with AWS APIs.                             | false    |              |
+| test-mailtrap-token                | The Mailtrap token used to run tests that require interaction with Mailtrap APIs.                               | false    |              |
+| test-slack-token                   | The Slack token used to run tests that require interaction with Slack APIs.                                     | false    |              |
+| test-gresb-portal-user-password    | The password for the default test user in the portal.                                                           | false    |              |
+| test-cluster-api-key               | The Kafka cluster api key                                                                                       | false    |              |
+| test-cluster-api-secret            | The Kafka cluster api secret                                                                                    | false    |              | 
+| test-datadog-api-key               | The Datadog API key.                                                                                            | false    |              | 
+| test-datadog-app-key               | The Datadog APP key.                                                                                            | false    |              | 
+| test-datadog-site                  | The Datadog site.                                                                                               | false    | datadoghq.eu | 
 
 ## Outputs
 

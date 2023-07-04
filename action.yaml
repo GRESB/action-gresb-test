@@ -38,6 +38,16 @@ inputs:
   cluster-api-secret:
     description: 'The Kafka cluster api secret'
     required: false
+  test-datadog-api-key:
+    description: 'The Datadog API key'
+    required: false
+  test-datadog-app-key:
+    description: 'The Datadog APP key'
+    required: false
+  test-datadog-site:
+    description: 'The Datadog site'
+    required: false
+    default: 'datadoghq.eu'
 outputs:
   log:
     description: 'The test log.'
@@ -113,6 +123,9 @@ runs:
         GRESB_PORTAL_PASSWORD: ${{ inputs.test-gresb-portal-user-password }}
         CLUSTER_API_KEY: ${{ inputs.cluster-api-key }}
         CLUSTER_API_SECRET: ${{ inputs.cluster-api-secret }}
+        DD_API_KEY: ${{ inputs.test-datadog-api-key }}
+        DD_APP_KEY: ${{ inputs.test-datadog-app-key }}
+        DD_SITE: ${{ inputs.test-datadog-site }}
     - name: Set status
       shell: bash
       if: always()

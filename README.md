@@ -36,6 +36,7 @@ To do that pull the action from a branch.
 | test-datadog-api-key               | The Datadog API key.                                                                                            | false    |              | 
 | test-datadog-app-key               | The Datadog APP key.                                                                                            | false    |              | 
 | test-datadog-site                  | The Datadog site.                                                                                               | false    | datadoghq.eu | 
+| test-github-token                  | The GitHub token used by the tests.                                                                             | false    |              | 
 
 ## Outputs
 

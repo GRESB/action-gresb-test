@@ -48,6 +48,9 @@ inputs:
     description: 'The Datadog site.'
     required: false
     default: 'datadoghq.eu'
+  test-github-token:
+    description: 'The GitHub token used by the tests.'
+    required: false
 outputs:
   log:
     description: 'The test log.'
@@ -126,6 +129,7 @@ runs:
         DD_API_KEY: ${{ inputs.test-datadog-api-key }}
         DD_APP_KEY: ${{ inputs.test-datadog-app-key }}
         DD_SITE: ${{ inputs.test-datadog-site }}
+        GITHUB_TOKEN: ${{ inputs.test-github-token }}
     - name: Set status
       shell: bash
       if: always()

@@ -65,7 +65,7 @@ runs:
         java-version: '17'
         java-package: jre
     - name: Install system packages
-      uses: awalsh128/cache-apt-pkgs-action@v1.1.2
+      uses: awalsh128/cache-apt-pkgs-action@v1.3.1
       with:
         packages: colorized-logs
         version: 1.0
@@ -130,6 +130,16 @@ runs:
         DD_APP_KEY: ${{ inputs.test-datadog-app-key }}
         DD_SITE: ${{ inputs.test-datadog-site }}
         GITHUB_TOKEN: ${{ inputs.test-github-token }}
+    - name: Upload test artifacts
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-artifacts
+        path: |
+          screenshots/
+          traces/
+          TEST-junit-*.xml
+        retention-days: 5
     - name: Set status
       shell: bash
       if: always()

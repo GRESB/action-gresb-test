@@ -65,7 +65,7 @@ runs:
         java-version: '17'
         java-package: jre
     - name: Install system packages
-      uses: awalsh128/cache-apt-pkgs-action@v1.1.2
+      uses: awalsh128/cache-apt-pkgs-action@v1.3.1
       with:
         packages: colorized-logs
         version: 1.0

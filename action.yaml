@@ -13,16 +13,30 @@ inputs:
     required: true
   installation-aws-access-key-id:
     description: 'The AWS access key id used to install gresb-test. Needs access to the gresb-application-versions S3 bucket.'
-    required: true
+    required: false
   installation-aws-secret-access-key:
     description: 'The AWS secret access key used to install gresb-test. Needs access to the gresb-application-versions S3 bucket.'
-    required: true
+    required: false
+  installation-aws-role-arn:
+    description: 'The AWS IAM role used to install gresb-test. Needs access to the gresb-application-versions S3 bucket.'
+    required: false
+  installation-aws-role-session-name:
+    description: 'The session name used when getting the token.'
+    required: false
+    default: "github-action-gresb-test"
   test-aws-access-key-id:
     description: 'The AWS access key id used to run tests that require interaction with AWS APIs.'
     required: false
   test-aws-secret-access-key:
     description: 'The AWS secret access key used to run tests that require interaction with AWS APIs.'
     required: false
+  test-aws-role-arn:
+    description: 'The AWS IAM role arn used to run tests that require interaction with AWS APIs.'
+    required: false
+  test-aws-role-session-name:
+    description: 'The session name used when interacting with AWS APIs.'
+    required: false
+    default: "github-action-gresb-test"
   test-mailtrap-token:
     description: 'The Mailtrap token used to run tests that require interaction with Mailtrap APIs.'
     required: false
@@ -77,6 +91,14 @@ runs:
           /usr/local/bin/gresb-test
         key: ${{ runner.os }}-gresb-test-${{ inputs.gresb-test-version }}
         restore-keys: ${{ runner.os }}-gresb-test
+    - name: AWS credentials for installation
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region:  eu-central-1
+        role-to-assume: ${{ inputs.installation-aws-role-arn }}
+        role-session-name: ${{ inputs.installation-aws-role-session-name }}
+        aws-access-key-id: ${{ inputs.installation-aws-access-key-id }}
+        aws-secret-access-key: ${{ inputs.installation-aws-secret-access-key }}
     - name: Install gresb-test
       shell: bash
       run: |
@@ -96,9 +118,14 @@ runs:
       env:
         gresb_test_version: ${{ inputs.gresb-test-version }}
         pat: ${{ inputs.installation-github-pat }}
-        AWS_DEFAULT_REGION: eu-central-1
-        AWS_ACCESS_KEY_ID: ${{ inputs.installation-aws-access-key-id }}
-        AWS_SECRET_ACCESS_KEY: ${{ inputs.installation-aws-secret-access-key }}
+    - name: AWS credentials for tests
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region:  eu-central-1
+        role-to-assume: ${{ inputs.test-aws-role-arn }}
+        role-session-name: ${{ inputs.test-aws-role-session-name }}
+        aws-access-key-id: ${{ inputs.test-aws-access-key-id }}
+        aws-secret-access-key: ${{ inputs.test-aws-secret-access-key }}
     - name: Run integration tests
       id: run-tests
       shell: bash
@@ -118,8 +145,6 @@ runs:
         } >> "${GITHUB_OUTPUT}"
       env:
         cmd_args: ${{ inputs.cmd-args }}
-        AWS_ACCESS_KEY_ID: ${{ inputs.test-aws-access-key-id }}
-        AWS_SECRET_ACCESS_KEY: ${{ inputs.test-aws-secret-access-key }}
         MAILTRAP_TOKEN: ${{ inputs.test-mailtrap-token }}
         SLACK_TOKEN: ${{ inputs.test-slack-token }}
         GRESB_RUN_HEADLESS: "true"

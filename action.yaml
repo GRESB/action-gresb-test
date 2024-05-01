@@ -156,7 +156,7 @@ runs:
         DD_SITE: ${{ inputs.test-datadog-site }}
         GITHUB_TOKEN: ${{ inputs.test-github-token }}
     - name: Upload test artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: test-artifacts

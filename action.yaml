@@ -73,7 +73,7 @@ runs:
   using: "composite"
   steps:
     - name: Install Java for gresb-test
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
         java-version: '17'
@@ -84,7 +84,7 @@ runs:
         packages: colorized-logs
         version: 1.0
     - name: Cache gresb-test
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           /usr/local/GRESB/gresb-test

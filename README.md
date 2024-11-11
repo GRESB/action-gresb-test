@@ -41,6 +41,7 @@ To do that pull the action from a branch.
 | test-datadog-app-key               | The Datadog APP key.                                                                                            | false    |                            |
 | test-datadog-site                  | The Datadog site.                                                                                               | false    | "datadoghq.eu"             |
 | test-github-token                  | The GitHub token used by the tests.                                                                             | false    |                            |
+| test-onepassword-svc-vault-token   | The OnePassword service vault token.                                                  | true     |                            |
 
 ## Outputs
 
@@ -51,7 +52,7 @@ To do that pull the action from a branch.
 
 ## Usage
 
-The following workflow configuration installs and executes gresb-test on every pull reuqets commit.
+The following workflow configuration installs and executes gresb-test on every pull request commit.
 
 ```yaml
 name: Continues Integration

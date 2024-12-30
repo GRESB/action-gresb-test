@@ -1,7 +1,11 @@
 name: 'GRESB Test'
 description: 'Run GRESB integration tests'
 inputs:
-  gresb-test-version:
+  application-command:
+    description: 'The command name for executing the application.'
+    required: true
+    default: 'gresb-test'
+  application-version:
     description: 'The version of gresb-test to use.'
     required: true
   cmd-args:
@@ -75,7 +79,7 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Install Java for gresb-test
+    - name: Install Java
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
@@ -86,14 +90,14 @@ runs:
       with:
         packages: colorized-logs
         version: 1.0
-    - name: Cache gresb-test
-      uses: actions/cache@v4
+    - name: Cache application
+      uses: actions/cache@v3
       with:
         path: |
-          /usr/local/GRESB/gresb-test
-          /usr/local/bin/gresb-test
-        key: ${{ runner.os }}-gresb-test-${{ inputs.gresb-test-version }}
-        restore-keys: ${{ runner.os }}-gresb-test
+          /usr/local/GRESB/${{ inputs.application-command }}
+          /usr/local/bin/${{ inputs.application-command }}
+        key: ${{ runner.os }}-${{ inputs.application-command }}-${{ inputs.application-version }}
+        restore-keys: ${{ runner.os }}-${{ inputs.application-command }}
     - name: AWS credentials for installation
       uses: aws-actions/configure-aws-credentials@v4
       with:
@@ -102,24 +106,25 @@ runs:
         role-session-name: ${{ inputs.installation-aws-role-session-name }}
         aws-access-key-id: ${{ inputs.installation-aws-access-key-id }}
         aws-secret-access-key: ${{ inputs.installation-aws-secret-access-key }}
-    - name: Install gresb-test
+    - name: Install application
       shell: bash
       run: |
-        if ! (which gresb-test) || ! (gresb-test -V | grep "${gresb_test_version}"); then
-          echo "DEBUG :: which gresb-test = $( which gresb-test )"
-          echo "DEBUG :: gresb-test -V    = $( gresb-test -V )"
+        if ! (which ${cmd}) || ! (${cmd} -V | grep "${gresb_test_version}"); then
+          echo "DEBUG :: which ${cmd} = $( which ${cmd} )"
+          echo "DEBUG :: ${cmd} -V    = $( ${cmd} -V )"
 
           install_script=/tmp/install.sh
           curl -H "Authorization: token ${pat}" -o "${install_script}" "https://raw.githubusercontent.com/GRESB/test-automation/${gresb_test_version}/test-runner/install.sh"
           chmod +x "${install_script}"
-          echo "==> Installing gresb-test ${gresb_test_version}"
+          echo "==> Installing ${cmd} ${gresb_test_version}"
           "${install_script}" "${gresb_test_version}"
           rm -f "${install_script}"
         else
-          echo "==> gresb-test ${gresb_test_version} already installed"
+          echo "==> ${cmd} ${gresb_test_version} already installed"
         fi
       env:
-        gresb_test_version: ${{ inputs.gresb-test-version }}
+        cmd: ${{ inputs.application-command }}
+        gresb_test_version: ${{ inputs.application-version }}
         pat: ${{ inputs.installation-github-pat }}
     - name: AWS credentials for tests
       uses: aws-actions/configure-aws-credentials@v4
@@ -133,7 +138,7 @@ runs:
       id: run-tests
       shell: bash
       run: |
-        cmd="gresb-test ${cmd_args}"
+        cmd="${cmd} ${cmd_args}"
         echo "DEBUG :: executing = ${cmd}"
         output_file=".output.txt"
         set +e
@@ -147,6 +152,7 @@ runs:
           echo "${END_OF_VALUE}"
         } >> "${GITHUB_OUTPUT}"
       env:
+        cmd: ${{ inputs.application-command }}
         cmd_args: ${{ inputs.cmd-args }}
         MAILTRAP_TOKEN: ${{ inputs.test-mailtrap-token }}
         SLACK_TOKEN: ${{ inputs.test-slack-token }}

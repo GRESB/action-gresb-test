@@ -5,7 +5,7 @@ inputs:
     description: 'The command name for executing the application.'
     required: true
     default: 'gresb-test'
-  gresb-test-version:
+  application-version:
     description: 'The version of gresb-test to use.'
     required: true
   cmd-args:
@@ -96,7 +96,7 @@ runs:
         path: |
           /usr/local/GRESB/${{ inputs.application-command }}
           /usr/local/bin/${{ inputs.application-command }}
-        key: ${{ runner.os }}-${{ inputs.application-command }}-${{ inputs.gresb-test-version }}
+        key: ${{ runner.os }}-${{ inputs.application-command }}-${{ inputs.application-version }}
         restore-keys: ${{ runner.os }}-${{ inputs.application-command }}
     - name: AWS credentials for installation
       uses: aws-actions/configure-aws-credentials@v4
@@ -124,7 +124,7 @@ runs:
         fi
       env:
         cmd: ${{ inputs.application-command }}
-        gresb_test_version: ${{ inputs.gresb-test-version }}
+        gresb_test_version: ${{ inputs.application-version }}
         pat: ${{ inputs.installation-github-pat }}
     - name: AWS credentials for tests
       uses: aws-actions/configure-aws-credentials@v4

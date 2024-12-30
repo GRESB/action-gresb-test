@@ -21,6 +21,7 @@ To do that pull the action from a branch.
 
 | Input                              | Description                                                                                                     | Required | Default                    |
 |------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------|----------------------------|
+| application-command                | The command name for executing the application.                                                                 | true     | gresb-test                 |
 | gresb-test-version                 | The version of gresb-test to use.                                                                               | true     |                            |
 | cmd-args                           | The arguments passed to gresb-test.                                                                             | true     | "-V"                       |
 | installation-github-pat            | The GitHub token used for downloading the installation script.                                                  | true     |                            |
@@ -41,7 +42,7 @@ To do that pull the action from a branch.
 | test-datadog-app-key               | The Datadog APP key.                                                                                            | false    |                            |
 | test-datadog-site                  | The Datadog site.                                                                                               | false    | "datadoghq.eu"             |
 | test-github-token                  | The GitHub token used by the tests.                                                                             | false    |                            |
-| test-onepassword-svc-vault-token   | The OnePassword service vault token.                                                  | true     |                            |
+| test-onepassword-svc-vault-token   | The OnePassword service vault token.                                                                            | true     |                            |
 
 ## Outputs
 

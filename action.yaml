@@ -114,7 +114,7 @@ runs:
           echo "DEBUG :: ${cmd} -V    = $( ${cmd} -V )"
 
           install_script=/tmp/install.sh
-          curl -H "Authorization: token ${pat}" -o "${install_script}" "https://raw.githubusercontent.com/GRESB/test-automation/${gresb_test_version}/test-runner/install.sh"
+          curl -H "Authorization: token ${pat}" -o "${install_script}" "https://raw.githubusercontent.com/GRESB/${application_command}/${gresb_test_version}/test-runner/install.sh"
           chmod +x "${install_script}"
           echo "==> Installing ${cmd} ${gresb_test_version}"
           "${install_script}" "${gresb_test_version}"
@@ -123,8 +123,9 @@ runs:
           echo "==> ${cmd} ${gresb_test_version} already installed"
         fi
       env:
-        cmd: ${{ inputs.application-command }}
+        application_command: ${{ inputs.application-command }}
         gresb_test_version: ${{ inputs.application-version }}
+        cmd: ${{ inputs.application-command }}
         pat: ${{ inputs.installation-github-pat }}
     - name: AWS credentials for tests
       uses: aws-actions/configure-aws-credentials@v4

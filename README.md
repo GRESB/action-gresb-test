@@ -8,7 +8,7 @@ This is a composite action that combines other actions like:
 - actions/cache@v3
 
 This action is used to install and execute
-the [GRESB integration test tool called `gresb-test`](https://github.com/GRESB/test-automation).
+the [GRESB integration test tool called `gresb-test`](https://github.com/GRESB/gresb-test).
 
 This repository has no CI/CD workflows because the repository is public and the workflows would need GRESB credentials to execute. 
 Therefore, to test changes to this action, do it from a private repository that uses it.

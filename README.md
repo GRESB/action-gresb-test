@@ -4,7 +4,7 @@ GitHub Action to install and execute gresb-test.
 This is a composite action that combines other actions like:
 
 - actions/setup-java@v3
-- awalsh128/cache-apt-pkgs-action@v1.1.2
+- awalsh128/cache-apt-pkgs-action@v1.4.3
 - actions/cache@v3
 
 This action is used to install and execute

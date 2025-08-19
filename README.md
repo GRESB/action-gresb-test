@@ -21,6 +21,7 @@ To do that, pull the action from a branch.
 
 | Input                              | Description                                                                                                          | Required | Default                    |
 |------------------------------------|----------------------------------------------------------------------------------------------------------------------|----------|----------------------------|
+| artifact-name                      | The name of the artifact file                                                                                        | false    | test-artifacts             |
 | application-command                | The command name for executing the application.                                                                      | true     | gresb-test                 |
 | application-version                | The application version to use.                                                                                      | true     |                            |
 | cmd-args                           | The arguments passed to the application.                                                                             | true     | '-V'                       |

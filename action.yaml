@@ -162,9 +162,12 @@ runs:
         MAX_BYTES=50000
         END_OF_VALUE=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
         {
-          echo "log_tail<<${END_OF_VALUE}"
-          tail -c "${MAX_BYTES}" "${output_file}" || true
-          echo "${END_OF_VALUE}"
+         {
+           echo "log_tail<<${END_OF_VALUE}"
+           tail -c "${MAX_BYTES}" "${output_file}" || true
+           echo
+           echo "${END_OF_VALUE}"
+         } >> "${GITHUB_OUTPUT}"
         } >> "${GITHUB_OUTPUT}"
       env:
         cmd: ${{ inputs.application-command }}

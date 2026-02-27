@@ -77,9 +77,10 @@ inputs:
     description: 'The OnePassword service vault token.'
     required: true
 outputs:
-  log:
-    description: 'The test log.'
-    value: ${{ steps.run-tests.outputs.log }}
+  log_tail:
+    description: 'Tail of the test log (truncated).'
+    value: ${{ steps.run-tests.outputs.log_tail }}
+
 runs:
   using: "composite"
   steps:
@@ -145,15 +146,24 @@ runs:
       run: |
         cmd="${cmd} ${cmd_args}"
         echo "DEBUG :: executing = ${cmd}"
+        
         output_file=".output.txt"
+        
         set +e
+        set -o pipefail
         ${cmd} 2>&1 | ansi2txt | tee "${output_file}"
-        status=$?
+        status=${PIPESTATUS[0]}
+        set +o pipefail
+        
+        # Always export status (small)
+        echo "status=${status}" >> "${GITHUB_OUTPUT}"
+        
+        # Export only a small tail of the log (avoid output size limits)
+        MAX_BYTES=50000
+        END_OF_VALUE=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
         {
-          echo "status=${status}"
-          END_OF_VALUE=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-          echo "log<<${END_OF_VALUE}";
-          cat "${output_file}";
+          echo "log_tail<<${END_OF_VALUE}"
+          tail -c "${MAX_BYTES}" "${output_file}" || true
           echo "${END_OF_VALUE}"
         } >> "${GITHUB_OUTPUT}"
       env:
@@ -170,7 +180,8 @@ runs:
         DD_SITE: ${{ inputs.test-datadog-site }}
         GITHUB_TOKEN: ${{ inputs.test-github-token }}
         OP_SVC_VAULT_TOKEN: ${{ inputs.test-onepassword-svc-vault-token }}
-    - name: Upload test artifacts
+          
+          - name: Upload test artifacts
       uses: actions/upload-artifact@v4
       if: always()
       with:
@@ -179,6 +190,7 @@ runs:
           screenshots/
           traces/
           TEST-junit-*.xml
+          .output.txt
         retention-days: 5
     - name: Set status
       shell: bash

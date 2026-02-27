@@ -47,9 +47,9 @@ To do that, pull the action from a branch.
 
 ## Outputs
 
-| Output | Description   |
-|--------|---------------|
-| log    | The test log. |
+| Output   | Description            |
+|----------|------------------------|
+| log_tail | The test log(limited). |
 
 
 ## Usage

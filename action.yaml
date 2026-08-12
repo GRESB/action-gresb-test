@@ -119,7 +119,22 @@ runs:
           echo "DEBUG :: ${cmd} -V    = $( ${cmd} -V )"
 
           install_script=/tmp/install.sh
-          curl -H "Authorization: token ${pat}" -o "${install_script}" "https://raw.githubusercontent.com/GRESB/${application_command}/${gresb_test_version}/test-runner/install.sh"
+          # --fail is what matters here: without it curl treats an HTTP error as success and writes the error body
+          # to the output file, which then gets chmod +x'd and executed - so an auth or rate-limit blip surfaced as
+          # "/tmp/install.sh: line 1: 404:: command not found" and exit 127 rather than a download failure.
+          # raw.githubusercontent.com reports auth/quota failures on private repos as 404, so retry the transient ones.
+          curl --fail --silent --show-error --location \
+               --retry 5 --retry-delay 5 --retry-all-errors \
+               -H "Authorization: token ${pat}" \
+               -o "${install_script}" \
+               "https://raw.githubusercontent.com/GRESB/${application_command}/${gresb_test_version}/test-runner/install.sh"
+
+          if ! head -1 "${install_script}" | grep -q '^#!'; then
+            echo "::error::Downloaded installer is not a script. First lines were:"
+            head -3 "${install_script}"
+            exit 1
+          fi
+
           chmod +x "${install_script}"
           echo "==> Installing ${cmd} ${gresb_test_version}"
           "${install_script}" "${gresb_test_version}"

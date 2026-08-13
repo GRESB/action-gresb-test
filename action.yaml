@@ -119,11 +119,36 @@ runs:
           echo "DEBUG :: ${cmd} -V    = $( ${cmd} -V )"
 
           install_script=/tmp/install.sh
-          curl -H "Authorization: token ${pat}" -o "${install_script}" "https://raw.githubusercontent.com/GRESB/${application_command}/${gresb_test_version}/test-runner/install.sh"
+          # Clean up on every exit path, not just the happy one, so a partial or private installer is not left
+          # behind on a persistent (self-hosted) runner when curl, validation or the installer itself fails.
+          trap 'rm -f -- "${install_script}"' EXIT
+
+          # --fail is what matters here: without it curl treats an HTTP error as success and writes the error body
+          # to the output file, which then gets chmod +x'd and executed - so an auth or rate-limit blip surfaced as
+          # "/tmp/install.sh: line 1: 404:: command not found" and exit 127 rather than a download failure.
+          # raw.githubusercontent.com reports auth/quota failures on private repos as 404, so retry the transient
+          # ones; the timeouts bound a stalled transfer, which --retry alone does not.
+          curl --fail --silent --show-error --location \
+               --connect-timeout 15 --max-time 120 --retry-max-time 180 \
+               --retry 5 --retry-delay 5 --retry-all-errors \
+               -H "Authorization: token ${pat}" \
+               -o "${install_script}" \
+               "https://raw.githubusercontent.com/GRESB/${application_command}/${gresb_test_version}/test-runner/install.sh"
+
+          if ! head -1 "${install_script}" | grep -q '^#!'; then
+            echo "::error::Downloaded installer is not a script. First lines follow."
+            # We have just established the download is not what we asked for, so suspend workflow-command parsing
+            # before echoing it - otherwise a "::" line in the response would be interpreted by the runner.
+            stop_marker="installer-dump-${RANDOM}${RANDOM}"
+            echo "::stop-commands::${stop_marker}"
+            head -3 "${install_script}"
+            echo "::${stop_marker}::"
+            exit 1
+          fi
+
           chmod +x "${install_script}"
           echo "==> Installing ${cmd} ${gresb_test_version}"
           "${install_script}" "${gresb_test_version}"
-          rm -f "${install_script}"
         else
           echo "==> ${cmd} ${gresb_test_version} already installed"
         fi
